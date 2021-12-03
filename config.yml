@@ -1,0 +1,28 @@
+---
+project: RL MiniProject
+# use absolute paths only, don't mind me I'm dumb
+checkpoints_dir : './checkpoints'
+results_dir : './Results'
+environments: 
+  - 'disturbance'
+  - 'setpoint'
+agents:
+  - 'ddpg'
+  - 'td3'
+
+agent_config:
+  td3:
+    state_dim:
+    action_dim:
+    max_action: 
+    batch_size: 64
+  ddpg:
+    alpha: 0.000025
+    beta : 0.000025
+    tau: 0.001
+    input_dim:
+      - 8
+    batch_size: 64
+    fc1_dim: 400
+    fc2_dim: 300
+    n_actions: 2
