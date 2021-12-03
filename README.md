@@ -6,10 +6,8 @@ TD3 and DDPG for lunar lander
 Training for TD3 agent with Setpoint Tracking mode
 
 ```sh
-$ python ./main.py --agent td3 --environment setpoint
-```
+$ pip install -r requirements.txt
 
-```
 $ python ./main.py -h # shows all the possible options
 
 usage: main.py [-h] -e [disturbance | setpoint] -a [ddpg | td3] [--eval] [--epochs EPOCHS]
