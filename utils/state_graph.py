@@ -3,7 +3,7 @@ import numpy as np
 
 
 def plot_state_graph(agent,env):
-  agent.mu.LoadCheckpoint()
+  agent.LoadModel()
 
   np.random.seed(0)
 
