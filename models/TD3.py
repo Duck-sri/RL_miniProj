@@ -20,6 +20,7 @@ import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, lr, max_action, chkpt_dir):
         super().__init__()
@@ -152,14 +153,7 @@ class TD3_Agent():
     
     def RetrieveBatch(self):
         batch = random.sample(self.memory, self.batch_size)
-        try:
-            state, action, rew, state_, done = map(T.stack, zip(*batch))
-        except RuntimeError as e:
-            print(e)
-            for k, i in enumerate(batch):
-                for j in i:
-                    print(k, ':', j.shape)
-        return state, action, rew, state_, done
+        return map(T.stack, zip(*batch))
     
     def learn(self):
         if self.mem_counter > self.batch_size:

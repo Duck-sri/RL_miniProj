@@ -16,13 +16,15 @@
 """
 
 import os
-from collections import deque
-import torch as T
 import random
-import torch.nn as nn
+from collections import OrderedDict, deque
+
 import numpy as np
+import torch as T
+import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
 
 class OUActionNoise:
     '''
@@ -57,13 +59,13 @@ class CriticNetwork(nn.Module):
 
     def __init__(self, beta, input_dim, fc1_dim, fc2_dim, n_actions, name, chkpt_dir):
         super().__init__()
-        self.input_dim = input_dim
+        self.input_dim = input_dim[0] if isinstance(input_dim,list) else input_dim
         self.fc1_dim = fc1_dim
         self.fc2_dim = fc2_dim
         self.n_actions = n_actions
         self.save_path = os.path.join(chkpt_dir, name + '_ddpg')
 
-        self.fc1 = nn.Linear(*self.input_dim, self.fc1_dim)
+        self.fc1 = nn.Linear(self.input_dim, self.fc1_dim)
         f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0])
         nn.init.uniform_(self.fc1.weight.data, -f1, f1)
         nn.init.uniform_(self.fc1.bias.data, -f1, f1)
@@ -115,13 +117,13 @@ class ActorNetwork(nn.Module):
 
     def __init__(self, alpha, input_dim, fc1_dim, fc2_dim, n_actions, name, chkpt_dir):
         super().__init__()
-        self.input_dim = input_dim
+        self.input_dim = input_dim[0] if isinstance(input_dim,list) else input_dim
         self.fc1_dim = fc1_dim
         self.fc2_dim = fc2_dim
         self.n_actions = n_actions
         self.save_path = os.path.join(chkpt_dir, name + '_ddpg')
 
-        self.fc1 = nn.Linear(*self.input_dim, self.fc1_dim)
+        self.fc1 = nn.Linear(self.input_dim, self.fc1_dim)
         f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0])
         nn.init.uniform_(self.fc1.weight.data, -f1, f1)
         nn.init.uniform_(self.fc1.bias.data, -f1, f1)
@@ -200,52 +202,8 @@ class Agent():
     
     def RetrieveBatch(self):
         batch = random.sample(self.memory, self.batch_size)
-        #state, action, rew, state_, done = map(T.stack, zip(*batch))
-        #"""
-        try:
-          state, action, rew, state_, done = map(T.stack, zip(*batch))
-        except RuntimeError as e:
-          print(e)
-          for k, i in enumerate(batch):
-            for j in i:
-              print(k, ':', j.shape)
-        #"""
-        return state, action, rew, state_, done
+        return map(T.stack,zip(*batch))
 
-    def learn(self):
-        if self.mem_cntr > self.batch_size:
-          state, action, rew, state_, done = self.RetrieveBatch()
-          
-          self.Q.eval()
-          self.Q_prime.eval()
-          self.mu_prime.eval()
-
-          target_action = self.mu_prime(state_)
-          critic_value_prime = self.Q_prime(state_, target_action).to(self.device)
-          
-          y = []
-          for i in range(self.batch_size):
-              y.append(rew[i] + self.gamma * critic_value_prime[i] * done[i])
-          
-          y = T.Tensor(y).view(self.batch_size, 1).to(self.device)
-          
-          self.Q.train()
-          self.Q.optimizer.zero_grad()
-          critic_value = self.Q(state, action).to(self.device)
-          critic_loss = F.mse_loss(y, critic_value)
-          critic_loss.backward()
-          self.Q.optimizer.step()
-          self.Q.eval()
-
-          self.mu.optimizer.zero_grad()
-          a = self.mu(state).to(self.device)
-          actor_loss = -self.Q(state, a)
-          actor_loss = T.mean(actor_loss)
-          actor_loss.backward()
-          self.mu.optimizer.step()
-
-          self.UpdateNetworkParameters()
-    
     def UpdateNetworkParameters(self, tau = None):
         if tau is None:
             tau = self.tau
@@ -259,7 +217,7 @@ class Agent():
             target_critic_parameters[name] = tau * critic_parameters[name].clone() +\
                  (1 - tau) * target_critic_parameters[name].clone()
 
-        self.Q_prime.load_state_dict(target_critic_parameters)
+        self.Q_prime.load_state_dict(OrderedDict(target_critic_parameters))
 
         for name in actor_parameters:
             target_actor_parameters[name] = tau * actor_parameters[name].clone() +\
@@ -267,7 +225,44 @@ class Agent():
         
         #self.VerifyUpload()
 
-        self.mu_prime.load_state_dict(target_actor_parameters)
+        self.mu_prime.load_state_dict(OrderedDict(target_actor_parameters))
+
+    def learn(self):
+        if self.mem_cntr > self.batch_size:
+            state, action, rew, state_, done = self.RetrieveBatch()
+        else: return
+
+          
+        self.Q.eval()
+        self.Q_prime.eval()
+        self.mu_prime.eval()
+
+        target_action = self.mu_prime(state_)
+        critic_value_prime = self.Q_prime(state_, target_action).to(self.device)
+
+        y = []
+        for i in range(self.batch_size):
+          y.append(rew[i] + self.gamma * critic_value_prime[i] * done[i])
+
+        y = T.Tensor(y).view(self.batch_size, 1).to(self.device)
+
+        self.Q.train()
+        self.Q.optimizer.zero_grad()
+        critic_value = self.Q(state, action).to(self.device)
+        critic_loss = F.mse_loss(y, critic_value)
+        critic_loss.backward()
+        self.Q.optimizer.step()
+        self.Q.eval()
+
+        self.mu.optimizer.zero_grad()
+        a = self.mu(state).to(self.device)
+        actor_loss = -self.Q(state, a)
+        actor_loss = T.mean(actor_loss)
+        actor_loss.backward()
+        self.mu.optimizer.step()
+
+        self.UpdateNetworkParameters()
+    
     
     def VerifyUpload(self):
         target_actor_params = self.mu_prime.named_parameters()
@@ -292,6 +287,3 @@ class Agent():
         self.Q_prime.LoadCheckpoint()
         self.mu.LoadCheckpoint()
         self.mu_prime.LoadCheckpoint()
-
-if __name__ == '__main__':
-    agent = Agent()
