@@ -3,7 +3,6 @@ TD3 and DDPG for lunar lander
 
 ## Usage
 
-Training for TD3 agent with Setpoint Tracking mode
 
 ```sh
 $ pip install -r requirements.txt
