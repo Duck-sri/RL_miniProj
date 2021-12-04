@@ -9,7 +9,7 @@ $ pip install -r requirements.txt
 
 $ python ./main.py -h # shows all the possible options
 
-usage: main.py [-h] -e [disturbance | setpoint] -a [ddpg | td3] [--eval] [--epochs EPOCHS]
+usage: main.py [-h] -e [disturbance | setpoint] -a [ddpg | td3] [--eval] [--state_graph] [--state_details] [--epochs EPOCHS]
 
 Train TD3 and DDPG models to solve LunarLander environment from OpenAI gym
 
@@ -20,7 +20,10 @@ optional arguments:
   -a [ddpg | td3], --agent [ddpg | td3]
                         Which Agent to use
   --eval                Use when not training, jus expecting results
-  --epochs EPOCHS       No.of Episodes to run, default 10
+  --state_graph         Plot State graph
+  --state_details       Get State details about state and enviroments
+  --epochs EPOCHS       No.of Episodes to run
+
 ```
 
 ## Config
