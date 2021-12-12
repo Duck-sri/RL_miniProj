@@ -40,7 +40,7 @@ agent = models.TD3(**agent_args) if args.agent=='td3' else models.DDPG(**agent_a
 epochs = args.epochs
 
 if args.state_graph or args.state_details:
-  _ = plot_state_graph(agent,env) if (args.state_graph) else get_state_details(env)
+  _ = plot_state_graph(agent,env,epochs) if (args.state_graph) else get_state_details(env)
 
 else:
   score_history,state_history = train_model(agent,env,epochs,render=True,eval_=args.eval,change_mid=(args.environment=='setpoint'))
