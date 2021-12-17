@@ -2,7 +2,7 @@ import numpy as np
 
 np.random.seed(0)
 
-def train_model(agent,env,epochs:int,render:bool=True,load:bool=True,eval_:bool=False,saveCycle:int=25,change_mid:bool=False):
+def train_model(agent,env,epochs:int,render:bool=True,load:bool=True,eval_:bool=False,saveCycle:int=25,change_mid:bool=False,verbose:bool=True):
 
     print(f'''Running {"Eval" if eval_ else "Training"}:
     No.of Epochs : {epochs}
@@ -29,6 +29,6 @@ def train_model(agent,env,epochs:int,render:bool=True,load:bool=True,eval_:bool=
         score_history.append(score)
         state_history.append(state)
         if (not eval_) and i%saveCycle == 0: agent.SaveModel()
-        print(f'...Iteration {i+1} over !!!!!')
+        print(f'...Iteration {i+1} over !!!!! Reward -> {score if verbose else "" }')
 
     return score_history,state_history
