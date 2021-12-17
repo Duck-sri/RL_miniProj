@@ -17,7 +17,7 @@ def save_histories(data,details:dict):
   if os.path.exists(path):
     with open(path,'rb+') as saveFile:
       prev_data = pkl.load(saveFile)
-      prev_data = np.concatenate((prev_data,np.array(data)),axis=1)
+      prev_data = np.concatenate((prev_data,np.array(data)),axis=0)
       pkl.dump(saveFile,prev_data)
 
   else:
