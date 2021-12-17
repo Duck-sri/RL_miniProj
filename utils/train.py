@@ -15,9 +15,11 @@ def save_histories(data,details:dict):
   path = os.path.join(path, this_file)
 
   if os.path.exists(path):
-    with open(path,'wb+') as saveFile:
+    with open(path,'rb') as saveFile:
       prev_data = pkl.load(saveFile)
       prev_data = np.concatenate((prev_data,np.array(data)),axis=0)
+
+    with open(path,'wb') as saveFile:
       pkl.dump(prev_data,saveFile)
 
   else:
