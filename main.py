@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 
 import models
 from enviroments import make_env
-from utils import get_state_details, loadConfig, plot_state_graph, train_model
+from utils import get_state_details, loadConfig, plot_state_graph, train_model,save_histories
 
 config = loadConfig('./config.yml')
 if config is None:
@@ -39,8 +39,18 @@ agent_args['chkpt_dir'] = checkpoint_dir
 agent = models.TD3(**agent_args) if args.agent=='td3' else models.DDPG(**agent_args)
 epochs = args.epochs
 
+save_args = {
+  'agent' : args.agent,
+  'env' : args.environment,
+  'path' : config['results_dir']
+}
+
 if args.state_graph or args.state_details:
   _ = plot_state_graph(agent,env,epochs) if (args.state_graph) else get_state_details(env)
 
 else:
   score_history,state_history = train_model(agent,env,epochs,render=True,eval_=args.eval,change_mid=(args.environment=='setpoint'))
+
+  for save_type,data in {'rewards':score_history,'states': state_history}.items():
+    save_args['type'] = save_type
+    save_histories(data,save_args)

@@ -1,6 +1,31 @@
+import os
 import numpy as np
+import pickle as pkl
 
 np.random.seed(0)
+
+def save_histories(data,details:dict):
+  
+  agent_name = details['agent']
+  env_name = details['env']
+  history_type = details['type']
+
+  path = os.path.abspath(details['path'])
+  this_file = f"{agent_name}_{env_name}_{history_type}.pkl"
+  path = os.path.join(path, this_file)
+
+  if os.path.exists(path):
+    with open(path,'rb+') as saveFile:
+      prev_data = pkl.load(saveFile)
+      prev_data = np.concatenate((prev_data,np.array(data)),axis=1)
+      pkl.dump(saveFile,prev_data)
+
+  else:
+    with open(path,'wb') as saveFile:
+      pkl.dump(np.array(data),saveFile)
+
+  print(f"Done saving {this_file}....")
+
 
 def train_model(agent,env,epochs:int,render:bool=True,load:bool=True,eval_:bool=False,saveCycle:int=25,change_mid:bool=False,verbose:bool=True):
 

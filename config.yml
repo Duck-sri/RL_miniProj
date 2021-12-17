@@ -2,7 +2,7 @@
 project: RL MiniProject
 # use absolute paths only, don't mind me I'm dumb
 checkpoints_dir : './checkpoints'
-results_dir : './Results'
+results_dir : './Results/train'
 environments: 
   - 'disturbance'
   - 'setpoint'
