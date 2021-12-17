@@ -18,7 +18,7 @@ def save_histories(data,details:dict):
     with open(path,'wb+') as saveFile:
       prev_data = pkl.load(saveFile)
       prev_data = np.concatenate((prev_data,np.array(data)),axis=0)
-      pkl.dump(saveFile,prev_data)
+      pkl.dump(prev_data,saveFile)
 
   else:
     with open(path,'wb') as saveFile:
