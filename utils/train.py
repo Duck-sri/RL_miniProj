@@ -1,6 +1,12 @@
 import os
+import time
 import numpy as np
 import pickle as pkl
+
+from typing import Union
+
+from .stability import check_stability_local
+# from ..enviroments.dynamic_setpoints import GymLander,RamLander
 
 np.random.seed(0)
 
@@ -36,13 +42,15 @@ def train_model(agent,env,epochs:int,render:bool=True,load:bool=True,eval_:bool=
     Change Midpoints : {str(change_mid)}\n\n''')
 
     if load: agent.LoadModel()
-    score_history,state_history = [],[]
+    score_history_stable,state_history_stable = [],[]
+    score_history_unstable,state_history_unstable = [],[]
     # TODO add way to log and measure data for results while in eval mode
 
     for i in range(epochs):
         score = 0
         mid = np.random.randint(1,19)
         helipad_pos = [mid-1,mid+1]
+        env.startEpisode()
         state = env.reset(helipad_pos) if change_mid else env.reset()
         done = False
         while not done:
@@ -53,9 +61,16 @@ def train_model(agent,env,epochs:int,render:bool=True,load:bool=True,eval_:bool=
             score += rew
             state = state_
             if render: env.render()
-        score_history.append(score)
-        state_history.append(state)
-        if (not eval_) and i%saveCycle == 0: agent.SaveModel()
-        print(f'...Iteration {i+1} over !!!!! Reward -> {score if verbose else "" }')
 
-    return score_history,state_history
+        tmp = check_stability_local(state)
+        if tmp == 'STABLE':
+          score_history_stable.append(score)
+          state_history_stable.append(state)
+        else:
+          score_history_unstable.append(score)
+          state_history_unstable.append(state)
+
+        if (not eval_) and i%saveCycle == 0: agent.SaveModel()
+        print(f'...Iteration {i+1} over !!!!! Reward -> {score if verbose else "" } stability : {tmp}')
+
+    return (score_history_stable,state_history_stable),(score_history_unstable,state_history_unstable)

@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 
 import models
 from enviroments import make_env
-from utils import get_state_details, loadConfig, plot_state_graph, train_model,save_histories
+from utils import get_state_details, loadConfig, plot_state_graph, train_model,save_histories,check_stability_local
 
 config = loadConfig('./config.yml')
 if config is None:
@@ -49,8 +49,13 @@ if args.state_graph or args.state_details:
   _ = plot_state_graph(agent,env,epochs) if (args.state_graph) else get_state_details(env)
 
 else:
-  score_history,state_history = train_model(agent,env,epochs,render=True,eval_=args.eval,change_mid=(args.environment=='setpoint'))
+  stable_histories,unstable_histories = train_model(agent,env,epochs,render=True,eval_=args.eval,change_mid=(args.environment=='setpoint'))
+  
 
-  for save_type,data in {'rewards':score_history,'states': state_history}.items():
-    save_args['type'] = save_type
+  for save_type,data in {'rewards':stable_histories[0],'states': stable_histories[1]}.items():
+    save_args['type'] = save_type+"_"+"stable"
+    save_histories(data,save_args)
+
+  for save_type,data in {'rewards':unstable_histories[0],'states': unstable_histories[1]}.items():
+    save_args['type'] = save_type+"_"+"unstable"
     save_histories(data,save_args)
