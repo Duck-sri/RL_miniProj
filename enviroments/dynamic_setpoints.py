@@ -348,25 +348,29 @@ class RamLander(LunarLanderContinuous):
         reward -= s_power * 0.03
         now = time.time()
         # print(time.time()-self.episode_start_time)
-        reward -= (now-self.episode_start_time) * 5
+        try:
+            reward -= (now-self.episode_start_time) * 5
 
-        done = False
-        if self.lander_ground_time is not None:
-          if self.game_over or abs(state[0]) >= 1.0 or (now-self.lander_ground_time > 1):
-            done = True
-            reward = -(100 + 5*(abs(state[0])))
-            self.lander_ground_time = None
-            
-        else:
-          if self.game_over or abs(state[0]) >= 1.0:
-            done = True
-            reward = -(100 + 5*(abs(state[0])))
-            self.lander_ground_time = None
+            done = False
+            if self.lander_ground_time is not None:
+                if self.game_over or abs(state[0]) >= 1.0 or (now-self.lander_ground_time > 1):
+                    done = True
+                    reward = -(100 + 5*(abs(state[0])))
+                    self.lander_ground_time = None
+                
+            else:
+                if self.game_over or abs(state[0]) >= 1.0:
+                    done = True
+                    reward = -(100 + 5*(abs(state[0])))
+                    self.lander_ground_time = None
 
-        if not self.lander.awake:
-            done = True
-            reward = +100 - 10*(abs(state[0]))
-            self.lander_ground_time = None
+            if not self.lander.awake:
+                done = True
+                reward = +100 - 10*(abs(state[0]))
+                self.lander_ground_time = None
+        except Exception as E:
+            print(E)
+            print("Error due to the init thing happened")
             
         # print(reward)
         return np.array(state, dtype=np.float32), reward, done, {}
