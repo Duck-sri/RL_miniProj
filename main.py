@@ -31,6 +31,7 @@ if __name__ == '__main__':
   PLOT = args.state_graph
   PRINT_STATE = args.state_details
   EPOCHS = args.epochs
+  RENDER = True
 
 else :
   # put ur thing here 
@@ -41,6 +42,7 @@ else :
   PLOT = False
   PRINT_STATE = False
   EPOCHS = 10
+  RENDER = False
 
 checkpoint_dir = os.path.abspath(config['checkpoints_dir'])
 checkpoint_dir = os.path.join(checkpoint_dir,AGENT,ENV)
@@ -63,7 +65,7 @@ save_dir = os.path.join(config['results_dir'],save_dir)
 init_save(config['results_dir'],force_clear=True)
 
 if PLOT or PRINT_STATE:
-  _ = plot_state_graph(agent,env,epochs) if (PLOT) else get_state_details(env)
+  _ = plot_state_graph(agent,env,EPOCHS) if (PLOT) else get_state_details(env)
 
 else:
   train_model(
@@ -71,7 +73,7 @@ else:
     env,
     EPOCHS,
     save_dir,
-    render=True,
+    render=RENDER,
     eval_=EVAL,
     saveCycle=5,
     change_mid=(ENV=='setpoint')

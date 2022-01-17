@@ -67,9 +67,9 @@ class ContactDetector(contactListener):
 class RamLander(LunarLanderContinuous):
     
     def __init__(self):
-        super(RamLander,self).__init__()
         self.episode_start_time = None
         self.lander_ground_time = None
+        super(RamLander,self).__init__()
 
     def startEpisode(self):
       self.episode_start_time = time.time()
