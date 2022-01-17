@@ -15,14 +15,14 @@ agent_config:
     state_dim: 8
     action_dim: 2
     max_action: 1
-    batch_size: 64
+    batch_size: 256
   ddpg:
     alpha: 0.000025
     beta : 0.000025
     tau: 0.001
     input_dim:
       - 8
-    batch_size: 64
+    batch_size: 256
     fc1_dim: 400
     fc2_dim: 300
     n_actions: 2
