@@ -350,7 +350,7 @@ class RamLander(LunarLanderContinuous):
     done = False
     # print(time.time()-self.episode_start_time)
     try:
-      if time_constraint: reward -= (now-self.episode_start_time) * 5
+      if time_constraint: reward -= (now-self.episode_start_time)
 
       if self.lander_ground_time is not None:
         if self.game_over or abs(state[0]) >= 1.0 or (now-self.lander_ground_time > 1):
@@ -508,7 +508,7 @@ class GymLander(LunarLanderContinuous):
     # print(time.time()-self.episode_start_time)
     now = time.time()
     try:
-      if time_constraint: reward -= (now-self.episode_start_time) * 5
+      if time_constraint: reward -= (now-self.episode_start_time)
 
       if self.lander_ground_time is not None:
         if self.game_over or abs(state[0]) >= 1.0 or (now-self.lander_ground_time > 1):
