@@ -103,7 +103,7 @@ class RamLander(LunarLanderContinuous):
         else:
             # check the origin if [ (0,0) or something ]
             self.helipad_x1,self.helipad_x2 = helipad_pos
-            self.helipad_y1,self.helipad_y2 = helipad_pos
+            # self.helipad_y1,self.helipad_y2 = helipad_pos
             
             
         self.helipad_y = H / 4

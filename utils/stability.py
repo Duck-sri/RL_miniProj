@@ -1,10 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# @TODO add way to measure the stability of the agent
-# 1. Show that the values are converging  for a series of episodes after training to agrue for stability
-# 2. 
-
 
 def check_stability_local(final_state : np.ndarray, tolerance=0.2) -> str:
     return 'STABLE' if np.allclose(final_state[:-2], np.zeros_like(final_state[:-2]), atol = tolerance) else 'UNSTABLE'

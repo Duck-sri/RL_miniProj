@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 
 import models
 from enviroments import make_env
-from utils import get_state_details, loadConfig, plot_state_graph, train_model,save_histories,check_stability_local
+from utils import get_state_details, loadConfig, plot_state_graph, train_model,init_save
 
 config = loadConfig('./config.yml')
 if config is None:
@@ -39,23 +39,22 @@ agent_args['chkpt_dir'] = checkpoint_dir
 agent = models.TD3(**agent_args) if args.agent=='td3' else models.DDPG(**agent_args)
 epochs = args.epochs
 
-save_args = {
-  'agent' : args.agent,
-  'env' : args.environment,
-  'path' : config['results_dir']
-}
+save_dir = '_'.join([args.agent,args.environment,'logs']) + '.pkl'
+save_dir = os.path.join(config['results_dir'],save_dir)
+
+init_save(config['results_dir'],force_clear=True)
 
 if args.state_graph or args.state_details:
   _ = plot_state_graph(agent,env,epochs) if (args.state_graph) else get_state_details(env)
 
 else:
-  stable_histories,unstable_histories = train_model(agent,env,epochs,render=True,eval_=args.eval,change_mid=(args.environment=='setpoint'))
-  
-
-  for save_type,data in {'rewards':stable_histories[0],'states': stable_histories[1]}.items():
-    save_args['type'] = save_type+"_"+"stable"
-    save_histories(data,save_args)
-
-  for save_type,data in {'rewards':unstable_histories[0],'states': unstable_histories[1]}.items():
-    save_args['type'] = save_type+"_"+"unstable"
-    save_histories(data,save_args)
+  train_model(
+    agent,
+    env,
+    epochs,
+    save_dir,
+    render=True,
+    eval_=args.eval,
+    saveCycle=5,
+    change_mid=(args.environment=='setpoint')
+  )
