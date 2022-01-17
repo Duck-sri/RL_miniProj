@@ -347,11 +347,11 @@ class RamLander(LunarLanderContinuous):
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
         now = time.time()
+        done = False
         # print(time.time()-self.episode_start_time)
         try:
             reward -= (now-self.episode_start_time) * 5
 
-            done = False
             if self.lander_ground_time is not None:
                 if self.game_over or abs(state[0]) >= 1.0 or (now-self.lander_ground_time > 1):
                     done = True
