@@ -499,30 +499,36 @@ class GymLander(LunarLanderContinuous):
             reward = shaping - self.prev_shaping
         self.prev_shaping = shaping
 
+        done = False
+
         reward -= (
             m_power * 0.30
         )  # less fuel spent is better, about -30 for heuristic landing
         reward -= s_power * 0.03
         # print(time.time()-self.episode_start_time)
-        reward -= (time.time()-self.episode_start_time) * 5
+        try:
+            reward -= (time.time()-self.episode_start_time) * 5
 
-        done = False
-        if self.lander_ground_time is not None:
-          if self.game_over or abs(state[0]) >= 1.0 or (time.time()-self.lander_ground_time > 1):
-            done = True
-            reward = -(100 + 5*(abs(state[0])))
-            self.lander_ground_time = None
-            
-        else:
-          if self.game_over or abs(state[0]) >= 1.0:
-            done = True
-            reward = -(100 + 5*(abs(state[0])))
-            self.lander_ground_time = None
+            if self.lander_ground_time is not None:
+                if self.game_over or abs(state[0]) >= 1.0 or (time.time()-self.lander_ground_time > 1):
+                    done = True
+                    reward = -(100 + 5*(abs(state[0])))
+                    self.lander_ground_time = None
+                
+            else:
+                if self.game_over or abs(state[0]) >= 1.0:
+                    done = True
+                    reward = -(100 + 5*(abs(state[0])))
+                    self.lander_ground_time = None
 
-        if not self.lander.awake:
-            done = True
-            reward = +100 - 10*(abs(state[0]))
-            self.lander_ground_time = None
-            
+            if not self.lander.awake:
+                done = True
+                reward = +100 - 10*(abs(state[0]))
+                self.lander_ground_time = None
+                
+        except Exception as E:
+            print(E)
+            print("Error due to the init thing happened")
+
         # print(reward)
         return np.array(state, dtype=np.float32), reward, done, {}
