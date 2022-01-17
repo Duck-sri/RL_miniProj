@@ -12,9 +12,9 @@ agents:
 
 agent_config:
   td3:
-    state_dim:
-    action_dim:
-    max_action: 
+    state_dim: 8
+    action_dim: 2
+    max_action: 1
     batch_size: 64
   ddpg:
     alpha: 0.000025
