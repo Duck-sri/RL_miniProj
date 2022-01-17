@@ -33,14 +33,6 @@ def init_save(save_dir:str,force_clear:bool=False):
     'episode_wise_stability': [],
     'all_states' : [],
     'all_scores' : [],
-    'stable' : {
-      'score' : [],
-      'state' : []
-    },
-    'unstable' : {
-      'score' : [],
-      'state' : []
-    }
   }
 
   for name in FILE_NAMES:
@@ -61,10 +53,6 @@ def save_logs(file_name:str,data:dict):
   with open(path,'rb') as handle:
     prev_data = pkl.load(handle)
 
-  prev_data['stable']['score'] += data['stable']['score']
-  prev_data['stable']['state'] += data['stable']['state']
-  prev_data['unstable']['score'] += data['unstable']['score']
-  prev_data['unstable']['state'] += data['unstable']['state']
   prev_data['all_states'] += data['all_states']
   prev_data['all_scores'] += data['all_scores']
   prev_data['episode_wise_stability'] += data['episode_wise_stability']
@@ -81,8 +69,6 @@ def train_model(agent,env,epochs:int,save_dir:str,render:bool=True,load:bool=Tru
   Change Midpoints : {str(change_mid)}\n\n''')
 
   if load: agent.LoadModel()
-  score_history_stable,state_history_stable = [],[]
-  score_history_unstable,state_history_unstable = [],[]
   array_of_states,array_of_scores,stability_list = [],[],[]
 
   for i in range(epochs):
@@ -108,12 +94,6 @@ def train_model(agent,env,epochs:int,save_dir:str,render:bool=True,load:bool=Tru
       array_of_states.append(states)
       array_of_scores.append(score)
       tmp = check_stability_local(states[-1])
-      if tmp == 'STABLE':
-        score_history_stable.append(score)
-        state_history_stable.append(states)
-      else:
-        score_history_unstable.append(score)
-        state_history_unstable.append(states)
 
       stability_list.append(tmp == 'STABLE')
 
@@ -123,20 +103,10 @@ def train_model(agent,env,epochs:int,save_dir:str,render:bool=True,load:bool=Tru
           'episode_wise_stability': stability_list,
           'all_states' : array_of_states,
           'all_scores' : array_of_scores,
-          'stable' : {
-            'score' : score_history_stable,
-            'state' : state_history_stable
-          },
-          'unstable' : {
-            'score' : score_history_unstable,
-            'state' : state_history_unstable
-          }
         }
         save_logs(save_dir,res)
-        score_history_stable,state_history_stable = [],[]
-        score_history_unstable,state_history_unstable = [],[]
         array_of_states,array_of_scores,stability_list = [],[],[]
 
-      print(f'...Iteration {i+1} over !!!!! Reward -> {score if verbose else "" } stability : {tmp}')
+      print(f'...Iteration {i+1} over !!!!! Avg. Reward -> {np.array(score)[-50:].mean() if verbose else "" } stability : {tmp}')
 
   print(f"Done training {epochs} epochs")
