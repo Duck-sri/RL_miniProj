@@ -74,7 +74,7 @@ def save_logs(file_name:str,data:dict):
 
   print(f"Done saving in file... {path}")
 
-def train_model(agent,env,epochs:int,save_dir:str,render:bool=True,load:bool=True,eval_:bool=False,saveCycle:int=25,change_mid:bool=False,verbose:bool=True):
+def train_model(agent,env,epochs:int,save_dir:str,render:bool=True,load:bool=True,eval_:bool=False,saveCycle:int=25,change_mid:bool=False,verbose:bool=True,time_constraint:bool=True):
 
   print(f'''Running {"Eval" if eval_ else "Training"}:
   No.of Epochs : {epochs}
@@ -96,7 +96,7 @@ def train_model(agent,env,epochs:int,save_dir:str,render:bool=True,load:bool=Tru
 
       while not done:
           action = agent.ChooseAction(state)
-          state_,rew, done, _ = env.step(action)
+          state_,rew, done, _ = env.step(action,time_constraint)
           agent.ReplayBuffer(state, action, np.array([rew]), state_, np.array([done]))
           agent.learn()
           score += rew

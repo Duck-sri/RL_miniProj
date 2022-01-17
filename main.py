@@ -76,5 +76,6 @@ else:
     render=RENDER,
     eval_=EVAL,
     saveCycle=5,
-    change_mid=(ENV=='setpoint')
+    change_mid=(ENV=='setpoint'),
+    time_constraint=False
   )
