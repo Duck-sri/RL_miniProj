@@ -107,6 +107,6 @@ def train_model(agent,env,epochs:int,save_dir:str,render:bool=True,load:bool=Tru
         save_logs(save_dir,res)
         array_of_states,array_of_scores,stability_list = [],[],[]
 
-      print(f'...Iteration {i+1} over !!!!! Avg. Reward -> {np.array(array_of_scores)[-50:].mean() if verbose else "" } stability : {tmp}')
+      print(f'...Iteration {i+1} over !!!!! now : {array_of_scores[-1]} , Avg. Reward -> {np.array(array_of_scores)[-50:].mean() if verbose else "" } stability : {tmp}')
 
   print(f"Done training {epochs} epochs")
